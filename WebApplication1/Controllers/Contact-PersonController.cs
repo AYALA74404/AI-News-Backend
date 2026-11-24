@@ -1,29 +1,47 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models;
-
+using WebApplication1.Data;
 namespace WebApplication1.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
     public class HomeController : Controller
     {
-        Person p1 = new Person("John Doe", "123-456-7890", "hlhj@.dljdklj", true);
-        Person p2 = new Person("Jane Smith", "123-456-7890", "hlhj@.dljdklj", true);
-        Person p3 = new Person("Bob Johnson", "123-456-7890", "hlhj@.dljdklj", true);
 
+        //[HttpGet]
+        //public IActionResult Index()
+        //{
+        //    return View();
+        //}
 
-
-
-        public IActionResult Index()
+        [HttpGet("GetAllcontacts")]
+        public List<Person> GetContact()
         {
-            return View();
+          List<Person> contacts = ContactsData.GetContacts();
+            return contacts;
+
         }
 
-        [HttpGet("contacts")]
-        public Person[] GetContact()
+        [HttpGet("GetcontactById/{personId}")]
+        public ActionResult<Person> GetContactById(string personId)
         {
-            Person[] contacts = new Person[] { p1, p2, p3 };
-            return contacts;
+            List<Person> contacts = ContactsData.GetContacts();
+            Person contact = contacts.FirstOrDefault(c => c.PersonId == personId);
+            if(contact == null)
+                return NotFound();
+            return Ok(contact);
+        }
+        [HttpPost("AddContact")]
+        public ActionResult<Person> AddContact(Person newContact)
+        {
+            List<Person> contacts = ContactsData.GetContacts();
+            if(newContact.FirstName == "string" || newContact.FirstName == string.Empty || newContact.Email == string.Empty  ||  newContact.Email == "string")
+            {
+                return BadRequest("The fields FirstName and Email are required.");
+            }
+            contacts.Add(newContact);
+            return Ok(newContact);
         }
     }
 }
